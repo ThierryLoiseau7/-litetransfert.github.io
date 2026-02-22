@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiteTransfert - Echanj HTG/USD/EUR/CAD ↔ USDT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Main Calculator */
+        .calculator-section {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin: 40px 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .currency-btn {
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .currency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .currency-btn.active {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .currency-flag {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .currency-code {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 18px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: #6b7280;
+        }
+
+        /* Result Box */
+        .result-box {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .result-row:last-child {
+            padding-top: 12px;
+            border-top: 2px solid #d1d5db;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .result-label {
+            color: #6b7280;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .result-highlight {
+            color: #10b981;
+            font-size: 24px;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .feature-desc {
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        /* Rates Table */
+        .rates-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+
+        .rates-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .rates-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rates-table th,
+        .rates-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .rates-table th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+
+        .rate-buy {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .rate-sell {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        /* Contact */
+        .contact-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            margin: 40px 0;
+        }
+
+        .contact-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            padding: 15px 30px;
+            background: white;
+            color: #1e3a8a;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            opacity: 0.8;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .currency-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-bar {
+                flex-direction: column;
+            }
+
+            .calculator-section {
+                padding: 20px;
+            }
+
+            .logo {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo" style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <img src="logo.png" alt="LiteTransfert" style="height: 80px; width: auto;">
+            </div>
+            <div class="tagline">Echanj HTG • USD • EUR • CAD ↔ USDT</div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value">5-15 min</div>
+                <div class="stat-label">Tan Tranzaksyon</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Disponib</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">5-10%</div>
+                <div class="stat-label">Frè</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">1000+</div>
+                <div class="stat-label">Kliyan Satisgè</div>
+            </div>
+        </div>
+
+        <!-- Calculator -->
+        <div class="calculator-section">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('buy')">
+                    ➕ Achte USDT
+                </div>
+                <div class="tab" onclick="switchTab('sell')">
+                    ➖ Vann USDT
+                </div>
+            </div>
+
+            <!-- Buy USDT Tab -->
+            <div class="tab-content active" id="buyTab">
+                <div class="form-group">
+                    <label class="form-label">Chwazi Lajan / Choose Currency</label>
+                    <div class="currency-grid">
+                        <div class="currency-btn active" onclick="selectCurrency('HTG')">
+                            <div class="currency-flag">🇭🇹</div>
+                            <div class="currency-code">HTG</div>
+                        </div>
+                        <div class="currency-btn" onclick="selectCurrency('USD')">
+                            <div class="currency-flag">🇺🇸</div>
+                            <div class="currency-code">USD</div>
+                        </div>
+                        <div class="currency-btn" onclick="selectCurrency('EUR')">
+                            <div class="currency-flag">🇪🇺</div>
+                            <div class="currency-code">EUR</div>
+                        </div>
+                        <div class="currency-btn" onclick="selectCurrency('CAD')">
+                            <div class="currency-flag">🇨🇦</div>
+                            <div class="currency-code">CAD</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Montan ou vle voye / Amount to send</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="form-input" id="buyAmount" placeholder="0.00" value="15000" oninput="calculateBuy()">
+                        <span class="currency-symbol" id="buyCurrencySymbol">HTG</span>
+                    </div>
+                </div>
+
+                <div class="result-box" id="buyResult">
+                    <div class="result-row">
+                        <span class="result-label">Montan ou voye:</span>
+                        <span class="result-value" id="buyAmountDisplay">15,000 HTG</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">To echanj:</span>
+                        <span class="result-value" id="buyRate">1 USDT = 150 HTG</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Frè nou (3%):</span>
+                        <span class="result-value" id="buyFee">450 HTG</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Ou ap resevwa:</span>
+                        <span class="result-highlight" id="buyReceive">100 USDT</span>
+                    </div>
+                </div>
+
+                <button class="cta-button" onclick="startBuyTransaction()">
+                    <span>💬</span>
+                    <span>Kòmanse sou Telegram / Start on Telegram</span>
+                </button>
+            </div>
+
+            <!-- Sell USDT Tab -->
+            <div class="tab-content" id="sellTab">
+                <div class="form-group">
+                    <label class="form-label">Montan USDT ou vle vann / USDT Amount</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="form-input" id="sellAmount" placeholder="0.00" value="100" oninput="calculateSell()">
+                        <span class="currency-symbol">USDT</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Resevwa nan / Receive in</label>
+                    <div class="currency-grid">
+                        <div class="currency-btn active" onclick="selectSellCurrency('HTG')">
+                            <div class="currency-flag">🇭🇹</div>
+                            <div class="currency-code">HTG</div>
+                        </div>
+                        <div class="currency-btn" onclick="selectSellCurrency('USD')">
+                            <div class="currency-flag">🇺🇸</div>
+                            <div class="currency-code">USD</div>
+                        </div>
+                        <div class="currency-btn" onclick="selectSellCurrency('EUR')">
+                            <div class="currency-flag">🇪🇺</div>
+                            <div class="currency-code">EUR</div>
+                        </div>
+                        <div class="currency-btn" onclick="selectSellCurrency('CAD')">
+                            <div class="currency-flag">🇨🇦</div>
+                            <div class="currency-code">CAD</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-box" id="sellResult">
+                    <div class="result-row">
+                        <span class="result-label">Ou vann:</span>
+                        <span class="result-value" id="sellAmountDisplay">100 USDT</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">To echanj:</span>
+                        <span class="result-value" id="sellRate">1 USDT = 145 HTG</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Frè nou (3%):</span>
+                        <span class="result-value" id="sellFee">435 HTG</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Ou ap resevwa:</span>
+                        <span class="result-highlight" id="sellReceive">14,500 HTG</span>
+                    </div>
+                </div>
+
+                <button class="cta-button" onclick="startSellTransaction()">
+                    <span>💬</span>
+                    <span>Kòmanse sou Telegram / Start on Telegram</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">Rapid</div>
+                <div class="feature-desc">5-15 minit sèlman pou tout tranzaksyon</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">Sekirize</div>
+                <div class="feature-desc">Blockchain sekirite, tout tranzaksyon pwoteje</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <div class="feature-title">To Bon</div>
+                <div class="feature-desc">Pi bon to pase Western Union ak MoneyGram</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <div class="feature-title">4 Lajan</div>
+                <div class="feature-desc">HTG, USD, EUR, CAD sipòte</div>
+            </div>
+        </div>
+
+        <!-- Rates Table -->
+        <div class="rates-section">
+            <h2 class="rates-title">📊 To Jodi a / Today's Rates</h2>
+            <table class="rates-table">
+                <thead>
+                    <tr>
+                        <th>Lajan / Currency</th>
+                        <th>Achte USDT / Buy Rate</th>
+                        <th>Vann USDT / Sell Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🇭🇹 Gourdes (HTG)</td>
+                        <td class="rate-buy">1 USDT = 155 HTG (5%)</td>
+                        <td class="rate-sell">1 USDT = 140 HTG (7%)</td>
+                    </tr>
+                    <tr>
+                        <td>🇺🇸 Dollar USA (USD)</td>
+                        <td class="rate-buy">1 USDT = $1.05 (5%)</td>
+                        <td class="rate-sell">1 USDT = $0.95 (5%)</td>
+                    </tr>
+                    <tr>
+                        <td>🇪🇺 Euro (EUR)</td>
+                        <td class="rate-buy">1 USDT = €0.98 (8%)</td>
+                        <td class="rate-sell">1 USDT = €0.88 (10%)</td>
+                    </tr>
+                    <tr>
+                        <td>🇨🇦 Dollar Kanadyen (CAD)</td>
+                        <td class="rate-buy">1 USDT = $1.45 (8%)</td>
+                        <td class="rate-sell">1 USDT = $1.30 (10%)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Contact -->
+        <div class="contact-section">
+            <div class="contact-title">Pare pou kòmanse?</div>
+            <p style="margin-bottom: 30px; font-size: 18px;">Kontakte nou kounye a pou premye tranzaksyon ou!</p>
+            <div class="contact-buttons">
+                <a href="https://t.me/litetransfert" class="contact-btn">
+                    <span>💬</span>
+                    <span>Telegram</span>
+                </a>
+                <a href="mailto:litetransfert@pm.me" class="contact-btn">
+                    <span>📧</span>
+                    <span>Email</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2025 LiteTransfert. Tout dwa rezève.</p>
+            <p>Echanj HTG/USD/EUR/CAD ↔ USDT | Rapid • Sekirize • Fasilite</p>
+        </div>
+    </div>
+
+    <script>
+        // Exchange rates (5-10% marge)
+        const rates = {
+            buy: {
+                HTG: 155,      // 1 USDT = 155 HTG (kliyant voye 155 HTG pou 1 USDT)
+                USD: 1.05,     // 1 USDT = $1.05 USD
+                EUR: 0.98,     // 1 USDT = €0.98 EUR  
+                CAD: 1.45      // 1 USDT = $1.45 CAD
+            },
+            sell: {
+                HTG: 140,      // 1 USDT = 140 HTG (kliyant resevwa 140 HTG pou 1 USDT)
+                USD: 0.95,     // 1 USDT = $0.95 USD
+                EUR: 0.88,     // 1 USDT = €0.88 EUR
+                CAD: 1.30      // 1 USDT = $1.30 CAD
+            }
+        };
+        
+        // Fee percentages
+        const feePercent = {
+            buy: {
+                HTG: 0.05,     // 5% pou HTG
+                USD: 0.05,     // 5% pou USD
+                EUR: 0.08,     // 8% pou EUR
+                CAD: 0.08      // 8% pou CAD
+            },
+            sell: {
+                HTG: 0.07,     // 7% pou HTG
+                USD: 0.05,     // 5% pou USD
+                EUR: 0.10,     // 10% pou EUR
+                CAD: 0.10      // 10% pou CAD
+            }
+        };
+
+        let selectedBuyCurrency = 'HTG';
+        let selectedSellCurrency = 'HTG';
+
+        // Switch tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'buy') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('buyTab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('sellTab').classList.add('active');
+            }
+        }
+
+        // Select currency for buying
+        function selectCurrency(currency) {
+            selectedBuyCurrency = currency;
+            document.querySelectorAll('#buyTab .currency-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            document.getElementById('buyCurrencySymbol').textContent = currency;
+            calculateBuy();
+        }
+
+        // Select currency for selling
+        function selectSellCurrency(currency) {
+            selectedSellCurrency = currency;
+            document.querySelectorAll('#sellTab .currency-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            calculateSell();
+        }
+
+        // Calculate buy
+        function calculateBuy() {
+            const amount = parseFloat(document.getElementById('buyAmount').value) || 0;
+            const rate = rates.buy[selectedBuyCurrency];
+            const feeRate = feePercent.buy[selectedBuyCurrency];
+            const usdt = amount / rate;
+            const fee = usdt * feeRate;
+            const finalUSDT = usdt - fee;
+
+            document.getElementById('buyAmountDisplay').textContent = 
+                amount.toLocaleString() + ' ' + selectedBuyCurrency;
+            document.getElementById('buyRate').textContent = 
+                '1 USDT = ' + rate.toLocaleString() + ' ' + selectedBuyCurrency;
+            document.getElementById('buyFee').textContent = 
+                (fee * rate).toFixed(2) + ' ' + selectedBuyCurrency + ' (' + (feeRate * 100) + '%)';
+            document.getElementById('buyReceive').textContent = 
+                finalUSDT.toFixed(2) + ' USDT';
+        }
+
+        // Calculate sell
+        function calculateSell() {
+            const usdt = parseFloat(document.getElementById('sellAmount').value) || 0;
+            const rate = rates.sell[selectedSellCurrency];
+            const feeRate = feePercent.sell[selectedSellCurrency];
+            const amount = usdt * rate;
+            const fee = amount * feeRate;
+            const finalAmount = amount - fee;
+
+            document.getElementById('sellAmountDisplay').textContent = usdt + ' USDT';
+            document.getElementById('sellRate').textContent = 
+                '1 USDT = ' + rate.toLocaleString() + ' ' + selectedSellCurrency;
+            document.getElementById('sellFee').textContent = 
+                fee.toFixed(2) + ' ' + selectedSellCurrency + ' (' + (feeRate * 100) + '%)';
+            document.getElementById('sellReceive').textContent = 
+                finalAmount.toFixed(2) + ' ' + selectedSellCurrency;
+        }
+
+        // Start buy transaction
+        function startBuyTransaction() {
+            const amount = parseFloat(document.getElementById('buyAmount').value);
+            const currency = selectedBuyCurrency;
+            const rate = rates.buy[currency];
+            const feeRate = feePercent.buy[currency];
+            const usdt = (amount / rate);
+            const fee = (usdt * feeRate).toFixed(2);
+            const finalUSDT = (usdt * (1 - feeRate)).toFixed(2);
+            const feeAmount = (amount * feeRate).toFixed(2);
+            
+            // Get payment method based on currency
+            let paymentMethod = '';
+            if (currency === 'HTG') {
+                paymentMethod = '📱 MonCash: 3456-7890\n🏦 NatCash: 3456-7890';
+            } else if (currency === 'USD') {
+                paymentMethod = '📱 Zelle: litetransfert@pm.me\n💵 Cash App: $litetransfert\n💳 PayPal: paypal.me/litetransfert';
+            } else if (currency === 'EUR') {
+                paymentMethod = '💳 Wise: wise.com/pay/litetransfert\n💳 PayPal: paypal.me/litetransfert';
+            } else if (currency === 'CAD') {
+                paymentMethod = '💳 Interac: litetransfert@pm.me\n💳 Wise: wise.com/pay/litetransfert';
+            }
+            
+            const message = `🇭🇹 LITETRANSFERT - Achte USDT
+
+Bonjou! Mwen vle achte USDT ✅
+
+━━━━━━━━━━━━━━━━━━━━━━
+📊 DETAY TRANZAKSYON:
+
+Mwen voye: ${amount.toLocaleString()} ${currency}
+Frè (${(feeRate * 100)}%): ${feeAmount} ${currency}
+M ap resevwa: ${finalUSDT} USDT
+
+To jodi a: 1 USDT = ${rate} ${currency}
+━━━━━━━━━━━━━━━━━━━━━━
+
+💸 KOTE POU VOYE LAJAN:
+${paymentMethod}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+📍 ADRÈS USDT MWEN:
+[Ban m adrès USDT ou la (TXyz...)]
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+✅ M ap voye lajan kounye a
+✅ M ap voye screenshot konfirmasyon
+
+Mèsi! 🙏`;
+            
+            const telegramUrl = `https://t.me/litetransfert?text=${encodeURIComponent(message)}`;
+            window.open(telegramUrl, '_blank');
+        }
+
+        // Start sell transaction
+        function startSellTransaction() {
+            const usdt = parseFloat(document.getElementById('sellAmount').value);
+            const currency = selectedSellCurrency;
+            const rate = rates.sell[currency];
+            const feeRate = feePercent.sell[currency];
+            const total = (usdt * rate).toFixed(2);
+            const fee = (usdt * rate * feeRate).toFixed(2);
+            const finalAmount = (total - fee).toFixed(2);
+            
+            // Get payment method based on currency
+            let receiveMethod = '';
+            if (currency === 'HTG') {
+                receiveMethod = '📱 MonCash: [Ban m nimewo ou]\n🏦 NatCash: [Ban m nimewo ou]';
+            } else if (currency === 'USD') {
+                receiveMethod = '📱 Zelle: [Ban m email/telefòn ou]\n💵 Cash App: [Ban m $cashtag ou]\n💳 PayPal: [Ban m email ou]';
+            } else if (currency === 'EUR') {
+                receiveMethod = '💳 Wise: [Ban m email ou]\n💳 PayPal: [Ban m email ou]';
+            } else if (currency === 'CAD') {
+                receiveMethod = '💳 Interac: [Ban m email ou]\n💳 Wise: [Ban m email ou]';
+            }
+            
+            const message = `🇭🇹 LITETRANSFERT - Vann USDT
+
+Bonjou! Mwen vle vann USDT ✅
+
+━━━━━━━━━━━━━━━━━━━━━━
+📊 DETAY TRANZAKSYON:
+
+Mwen vann: ${usdt} USDT
+Frè (${(feeRate * 100)}%): ${fee} ${currency}
+M ap resevwa: ${finalAmount} ${currency}
+
+To jodi a: 1 USDT = ${rate} ${currency}
+━━━━━━━━━━━━━━━━━━━━━━
+
+📍 KOTE POU VOYE USDT:
+Adrès: TXyz123abc456789... (m ap ban ou l)
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+💰 KOTE POU VOYE LAJAN BA MWEN:
+${receiveMethod}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+✅ M ap voye USDT apre ou ban m adrès
+✅ M ap voye TX ID
+
+Mèsi! 🙏`;
+            
+            const telegramUrl = `https://t.me/litetransfert?text=${encodeURIComponent(message)}`;
+            window.open(telegramUrl, '_blank');
+        }
+
+        // Initialize
+        calculateBuy();
+        calculateSell();
+    </script>
+</body>
+</html>
